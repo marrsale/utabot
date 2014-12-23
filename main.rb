@@ -1,9 +1,17 @@
 # Program constants
-MAX_RECORDS = 1000 # will only retrieve this many tracks
-YESTERDAY   = (Date.today - 7).to_time
-GENRES      = [{name: 'ambient', playlist_name: 'Ambient'},
-              {name: 'deep house', playlist_name: 'Deep House'},
-              {name: 'techno', playlist_name: 'Techno'}]
+MAX_RECORDS  = 1000 # will only retrieve this many tracks
+ONE_WEEK_AGO = (Date.today - 7).to_time
+GENRES       = [{name: 'ambient', playlist_name: 'Ambient'},
+                {name: 'deep house', playlist_name: 'Deep House'},
+                {name: 'techno', playlist_name: 'Techno'}]
+
+# The client object used for all wrapped HTTPfunctions
+def client
+  @client ||= SoundCloud.new(username: ENV['uname'],
+                              password: ENV['pw'],
+                              client_id: ENV['SOUNDCLOUD_CLIENT_ID'],
+                              client_secret: ENV['SOUNDCLOUD_CLIENT_SECRET'])
+end
 
 # Helper for comparing 'quality' of two tracks
 def score(track1, track2)
@@ -55,17 +63,9 @@ def get_playlist(client, name, pl_exists=false, retries=0)
   end
 end
 
-puts 'For date '+ (YESTERDAY.to_s)
-# Get the hottest electronic sound posted in the last day
-def client
-  @client ||= SoundCloud.new(username: ENV['uname'],
-                              password: ENV['pw'],
-                              client_id: ENV['SOUNDCLOUD_CLIENT_ID'],
-                              client_secret: ENV['SOUNDCLOUD_CLIENT_SECRET'])
-end
-
+puts 'For date '+ (ONE_WEEK_AGO.to_s)
 GENRES.each do |genre|
-  puts "For genre #{genre[:name]}..."
+  puts "For genre #{genre[:name]}:"
   best_track   = nil
   high_score   = 0
   retrieved_ct = 0
@@ -75,11 +75,11 @@ GENRES.each do |genre|
     # Get tracks for genre, by hotness in the last week
     if (hottest = client.get('/tracks', q: genre[:name], order: 'hotness', created_at: 'last_week', limit: 200, offset: retrieved_ct))
       retrieved_ct += hottest.count
-      puts "Retrieved #{retrieved_ct} of #{MAX_RECORDS} records."
+      print "\rRetrieved #{retrieved_ct} of #{MAX_RECORDS} records."
       hottest.each do |track|
         created_at = Time.parse(track.created_at)
         # Find all sounds that have ACTUALLY been posted on the day one week ago
-        if (Time.parse(track.created_at) >= YESTERDAY && Time.parse(track.created_at) < ((YESTERDAY.to_date) + 1).to_time) && track.genre = genre[:name] && track.duration >= 180000
+        if (Time.parse(track.created_at) >= ONE_WEEK_AGO && Time.parse(track.created_at) < ((ONE_WEEK_AGO.to_date) + 1).to_time) && track.genre = genre[:name] && track.duration >= 180000
           finalists << track
           genre[:best_track] = track if (genre[:best_track].nil? || score(genre[:best_track], track) != genre[:best_track])
         end
@@ -87,8 +87,9 @@ GENRES.each do |genre|
     end
   end
   if (playlist = get_playlist(client, genre[:playlist_name])) && !(genre[:best_track].nil?)
-    tracks = playlist.tracks.map { |t| { id: t.id } }
-    tracks << { id: genre[:best_track].id }
-    client.put(playlist.uri, playlist: {tracks: tracks})
+    tracks = playlist.tracks.map { |t| t.id }
+    tracks << genre[:best_track].id unless tracks.include?(genre[:best_track].id)
+    # client.put(playlist.uri, playlist: {tracks: tracks.map { |t| { id: t } }})
+    puts "\nAdded #{genre[:best_track].title} to #{genre[:playlist_name]}"
   end
 end
