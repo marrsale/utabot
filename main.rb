@@ -13,7 +13,7 @@ def client
                               client_secret: ENV['SOUNDCLOUD_CLIENT_SECRET'])
 end
 
-# Helper for comparing 'quality' of two tracks
+# Dumb helper for comparing 'quality' of two tracks
 def score(track1, track2)
   def kernel(track)
     score = 0
@@ -72,7 +72,7 @@ GENRES.each do |genre|
   finalists    = genre[:finalists] = []
   # pagination loop
   while retrieved_ct < MAX_RECORDS
-    # Get tracks for genre, by hotness in the last week
+    # Get tracks for genre, by hotness posted one week ago
     if (hottest = client.get('/tracks', q: genre[:name], order: 'hotness', created_at: 'last_week', limit: 200, offset: retrieved_ct))
       retrieved_ct += hottest.count
       print "\rRetrieved #{retrieved_ct} of #{MAX_RECORDS} records."
