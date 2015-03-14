@@ -5,7 +5,6 @@ ONE_WEEK_AGO = (Date.today - 7).to_time
 GENRES       = [{name: 'ambient', playlist_name: 'Ambient'},
                 {name: 'deep house', playlist_name: 'Deep House'},
                 {name: 'disco', playlist_name: 'Disco'}]
-CROSS_GENRE  = []
 
 # The client object used for all wrapped HTTPfunctions
 def client
@@ -13,6 +12,15 @@ def client
                               password: ENV['pw'],
                               client_id: ENV['SOUNDCLOUD_CLIENT_ID'],
                               client_secret: ENV['SOUNDCLOUD_CLIENT_SECRET'])
+end
+
+def twitter
+  @twitter_client ||= Twitter::REST::Client.new do |c|
+    c.consumer_key        = ENV['utabot_twitter_consumer_key']
+    c.consumer_secret     = ENV['utabot_twitter_consumer_secret']
+    c.access_token        = ENV['utabot_twitter_access_token']
+    c.access_token_secret = ENV['utabot_twitter_access_token_secret']
+  end
 end
 
 # Helpers for comparing 'quality' of two tracks
@@ -117,7 +125,6 @@ GENRES.each do |genre|
       if !(tracks.include?(genre[:best_track].id))
         tracks << genre[:best_track].id
         client.put(playlist.uri, playlist: {tracks: tracks.map { |t| { id: t } }})
-        CROSS_GENRE << genre[:best_track]
         puts "\nAdded #{genre[:best_track].title} to #{genre[:playlist_name]}"
       end
     end
@@ -128,5 +135,8 @@ GENRES.each do |genre|
 end
 
 # Now all the hard work is done, pick just the best one to reshare
-best_in_order = GENRES.map { |g| g[:best_track] }.sort { |a,b| parameterize(a) <=> parameterize(b) }.reverse # the best tracks, from greatest to least score
+best_in_order = GENRES.map { |g| g[:best_track] }.sort { |a,b| parameterize(b) <=> parameterize(a) } # the best tracks, from greatest to least score
+# Reshare on SoundCloud
 reshare(best_in_order.first)
+# Tweet it on twitter
+twitter.update("#{best_in_order.first.title} #{best_in_order.first.permalink_url}")
