@@ -1,7 +1,10 @@
 source "http://rubygems.org"
 
-require 'soundcloud'
-require 'twitter'
+gem 'soundcloud'
+gem 'twitter'
 
-# debugging
-require 'pry'
+group :development do
+  gem 'rspec'
+  gem 'guard-rspec'
+  gem 'pry'
+end
