@@ -4,8 +4,6 @@ Currently the good stuff is in lib, `main.rb` will be deprecated as it is yucky.
 
 `be ruby main.rb`
 
-**NOTE:**  Soundcloud REST API does not behave as you'd expect:  
-
-- Genre parameter is almost entirely useless ('q' usually works well for genre filtering)
-- Variable number of returns
-- Inexplicable 400 errors unreliably (i.e. non-idempotent), for example when requested track limit provided is larger than 200
+## TODOS
+- API integration and contract testing (maybe VCR)
+- Alternative strategies for song selection, e.g. collaborative filtering

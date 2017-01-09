@@ -14,7 +14,7 @@ class Utabot < Struct.new :soundcloud
 
   def track_arguments **args
     {}.tap do |options|
-      options[:q] = args[:genre] if not args[:genre].nil?
+      options[:genres] = args[:genre] if not args[:genre].nil?
       options[:limit] = [args[:limit], MAX_REQUEST_PAGE_SIZE].min if not args[:limit].nil?
       options[:created_at] = created_at_range(args[:created_at]) if not args[:created_at].nil?
     end
@@ -22,6 +22,7 @@ class Utabot < Struct.new :soundcloud
 
   def created_at_range interval
     from, to = [interval.first, interval.last].minmax
+
     {}.tap do |options|
       options[:from] = from.strftime "%Y-%m-%d 00:00:00"
       options[:to] = to.strftime "%Y-%m-%d 00:00:00"

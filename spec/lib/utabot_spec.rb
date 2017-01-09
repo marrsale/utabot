@@ -22,12 +22,12 @@ RSpec.describe Utabot do
         track_arg_hash = subject.track_arguments genre: 'genre'
 
         # we filter on 'q' instead, as the genre parameter does not work
-        expect(subject.track_arguments genre: 'genre').to have_key :q
-        expect(track_arg_hash[:q]).to eq 'genre'
+        expect(subject.track_arguments genre: 'genre').to have_key :genres
+        expect(track_arg_hash[:genres]).to eq 'genre'
       end
 
       it 'does not add a key for genre when not provided' do
-        expect(subject.track_arguments).not_to have_key :genre
+        expect(subject.track_arguments).not_to have_key :genres
       end
     end
 
