@@ -10,14 +10,25 @@ RSpec.describe Utabot do
   describe '#hottest_for_genre' do
     it { is_expected.to respond_to :hottest_for_genre }
 
-    it 'returns a track for a given genre'
-    it 'returns a track scored most highly by some criteria'
+    describe 'returns a track' do
+      let(:mock_tracks_collection) { (1..10).to_a }
+
+      before do
+        allow(subject).to receive(:score).and_do &:tap
+      end
+
+      it 'scored most highly by some criteria', skip: 'implement #for_genre' do
+        allow_any_instance_of(TracksCollection).to receive(:for_genre).and_return mock_tracks_collection
+
+        expect(subject.hottest_for_genre 'disco').to eq mock_tracks_collection.max
+      end
+    end
   end
 
   describe '#tweet'
   describe '#reshare'
   describe '#playlist' do
-    describe '#playlist(foo).add' #eventual playlist class?
+    describe '#playlist(foo).add'
   end
 end
 
@@ -73,7 +84,7 @@ RSpec.describe TracksCollection do
       end
     end
 
-    describe 'with a date range' do
+    describe 'with a date range', skip: 'See TODOs in README' do
       let(:past_week) { (Date.today - 7)..Date.today }
       let(:track_arg_hash_with_dates) { subject.send :track_arguments, created_at: past_week }
 
@@ -111,14 +122,13 @@ RSpec.describe TracksCollection do
     end
   end
 
-  describe '#tracks_for_genre' do
-    it { is_expected.to respond_to :tracks_for_genre }
+  describe '#for_genre' do
+    it { is_expected.to respond_to :for_genre }
 
-    it 'retrieves and returns tracks' do
-      mock_track_collection = double 'TracksCollection'
-      allow(soundcloud_client).to receive(:get).and_return mock_track_collection
+    it 'retrieves and returns self populated with tracks' do
+      allow(subject).to receive(:get_tracks).and_return double 'SoundcloudResponse'
 
-      expect(subject.tracks_for_genre 'disco').to be mock_track_collection
+      expect(subject.for_genre 'disco').to be subject
     end
   end
 end

@@ -1,10 +1,12 @@
 require 'date'
 
-class TracksCollection < Struct.new :soundcloud
-  MAX_REQUEST_PAGE_SIZE = 200 # TODO: better organize configuration constants
+class TracksCollection < Struct.new :soundcloud, :tracks
+  MAX_REQUEST_PAGE_SIZE = 200
 
-  def tracks_for_genre genre, limit=nil, for_dates: nil
-    get_tracks genre: genre, limit: limit, created_at: for_dates
+  def for_genre genre, limit=nil, for_dates: nil
+    self.tracks = get_tracks genre: genre, limit: limit, created_at: for_dates
+
+    self
   end
 
   private
@@ -17,15 +19,11 @@ class TracksCollection < Struct.new :soundcloud
   def track_arguments **args
     {}.tap do |options|
       options[:genres] = args[:genre] if not args[:genre].nil?
+      options[:created_at] = 'last_week' if not args[:limit].nil?
       options[:limit] = [args[:limit], MAX_REQUEST_PAGE_SIZE].min if not args[:limit].nil?
-
-      # See TODO below
-      # options[:created_at] = created_at_range(args[:created_at]) if not args[:created_at].nil?
-      options[:created_at] = 'last_week' # n1 soundcloud
     end
   end
 
-  # TODO: soundcloud documentation specifies a filter argument as a hash with specifically formatted dates, created_at[from] and created_at[to], but these seem not to work (or even exist?)
   def created_at_range interval
     from, to = [interval.first, interval.last].minmax
 
@@ -37,7 +35,9 @@ class TracksCollection < Struct.new :soundcloud
 end
 
 class Utabot < Struct.new :soundcloud
-  def hottest_for_genre genre; end
+  def hottest_for_genre genre
+    TracksCollection.new(soundcloud).for_genre.max_by &method(:score)
+  end
 
   def score track
     score = 0.to_f
