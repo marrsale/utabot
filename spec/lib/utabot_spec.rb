@@ -2,6 +2,11 @@ require 'spec_helper'
 
 require './lib/utabot'
 
+
+def soundcloud_response collection, next_href=''
+  double 'SoundcloudResponse', collection: collection, next_href: next_href
+end
+
 RSpec.describe Utabot do
   let(:soundcloud_client) { double 'SoundcloudClient' }
 
@@ -14,11 +19,12 @@ RSpec.describe Utabot do
       let(:mock_tracks_collection) { (1..10).to_a }
 
       before do
-        allow(subject).to receive(:score).and_do &:tap
+        allow(subject).to receive(:score) {|x| x} # &:itself ???
       end
 
-      it 'scored most highly by some criteria', skip: 'implement #for_genre' do
-        allow_any_instance_of(TracksCollection).to receive(:for_genre).and_return mock_tracks_collection
+      it 'scored most highly by some criteria' do
+        allow_any_instance_of(TracksCollection).to receive(:for_genre) {|c| c}
+        allow_any_instance_of(TracksCollection).to receive(:tracks).and_return mock_tracks_collection
 
         expect(subject.hottest_for_genre 'disco').to eq mock_tracks_collection.max
       end
@@ -40,10 +46,6 @@ RSpec.describe TracksCollection do
 
   it { is_expected.to respond_to :soundcloud }
 
-  def soundcloud_response collection, next_href=''
-    double 'SoundcloudResponse', collection: collection, next_href: next_href
-  end
-
   describe '#get_tracks' do
     let(:track) { double 'Track' }
     let(:fifty_tracks) { Array.new 50, track }
@@ -57,7 +59,7 @@ RSpec.describe TracksCollection do
       expect(subject.send :get_tracks).to eq fifty_records.collection
     end
 
-    it 'always sets a last_response, even if only need one page', skip:'rethink this one' do
+    it 'always sets a last_response, even if only need one page' do
       expect{subject.send :get_tracks}.to change {subject.send :last_response}
     end
 
@@ -70,8 +72,11 @@ RSpec.describe TracksCollection do
         subject.send :get_tracks, limit: 50
       end
 
-      it 'uses linked partitioning when necessary',skip:'rethink this one' do
+      it 'uses linked partitioning when necessary' do
         next_href = 'next_href'
+        two_hundred_records = soundcloud_response Array.new(200, track), next_href
+        allow(soundcloud_client).to receive(:get).and_return two_hundred_records
+
         expect(soundcloud_client).to receive(:get).with(next_href)
 
         subject.send :get_tracks, limit: (max_request_size + 1)

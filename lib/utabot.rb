@@ -18,12 +18,11 @@ class TracksCollection < Struct.new :soundcloud, :tracks
 
       while retrieved.size < (args[:limit] or 1)
         if last_response and last_response.next_href != ''
-          last_response = soundcloud.get last_response.next_href
-          retrieved.push *last_response.collection
+          self.last_response = soundcloud.get last_response.next_href
         else
-          last_response = soundcloud.get '/tracks', track_arguments(args)
-          retrieved.push *last_response.collection
+          self.last_response = soundcloud.get '/tracks', track_arguments(args)
         end
+        retrieved.push *last_response.collection
       end
     end
   end
