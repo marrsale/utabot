@@ -20,20 +20,17 @@ def twitter
   end
 end
 
+Genres = ['ambient', 'disco', 'deep house']
+
 uta = Utabot.new client
-best_disco_song = uta.hottest_for_genre 'ambient', 10000
-puts best_disco_song.permalink_url
-# res = uta.for_genre 'disco', 200, for_dates: (Date.today - 7)..Date.today
-# best = res.reject{|t| t.playback_count == 0 or t.duration > 600000 }.sort_by(&uta.method(:score)).last
-#
-#
-# puts best.permalink_url
-# best_disco_song = uta.hottest_for_genre 'disco'
+updated = []
+
+Genres.each do |genre|
+  best_song = uta.hottest_for_genre genre, 20000
+  puts "#{genre}: " + best_song.permalink_url
+  updated << (uta.playlist(genre).add best_song)
+end
+
+
 # uta.tweet best_disco_song
 # uta.reshare best_disco_song
-# uta.playlist('disco').add best_disco_song
-
-# Reshare on SoundCloud
-# reshare(best_in_order.first)
-# Tweet it on twitter
-# twitter.update("#{best_in_order.first.title} #{best_in_order.first.permalink_url}")
