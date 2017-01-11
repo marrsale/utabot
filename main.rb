@@ -20,16 +20,8 @@ def twitter
   end
 end
 
-# Helper for resharing to SC stream if the song hasn't been reshared already
-# NOTE this isn't an officially supported action, and so is a little hacky
-# http://stackoverflow.com/questions/19266083/reposting-a-track-via-the-soundcloud-api
-# http://stackoverflow.com/questions/14914059/soundcloud-api-extracting-tracks-reposted-by-a-user
-def reshare track
-  client.put "https://api.soundcloud.com/e1/me/track_reposts/#{track.id}"
-end
-
 uta = Utabot.new client
-best_disco_song = uta.hottest_for_genre 'Deep House', 20000
+best_disco_song = uta.hottest_for_genre 'ambient', 10000
 puts best_disco_song.permalink_url
 # res = uta.for_genre 'disco', 200, for_dates: (Date.today - 7)..Date.today
 # best = res.reject{|t| t.playback_count == 0 or t.duration > 600000 }.sort_by(&uta.method(:score)).last

@@ -31,8 +31,39 @@ RSpec.describe Utabot do
     end
   end
 
-  describe '#tweet'
-  describe '#reshare'
+  let(:song_title) { 'An Artist - A Song' }
+  let(:song_url) { 'a_url_here' }
+  let(:song_id) { 1 }
+  let(:song) { double 'Track', title: song_title, permalink_url: song_url, id: song_id }
+
+  describe '#tweet' do
+    let(:twitter) { double 'Twitter' }
+
+    it { is_expected.to respond_to :tweet }
+    it { is_expected.to respond_to :twitter }
+
+    before do
+      subject.twitter = twitter
+    end
+
+    it 'takes a song and constructs a twitter message' do
+      expected_message = "#{song_title} #{song_url}"
+
+      expect(twitter).to receive(:update).with expected_message
+      subject.tweet song
+    end
+  end
+
+  describe '#reshare' do
+    it { is_expected.to respond_to :reshare }
+
+    it 'makes a put to soundcloud to share a song on your wall' do
+      expect(soundcloud_client).to receive(:put).with "https://api.soundcloud.com/e1/me/track_reposts/#{song_id}"
+
+      subject.reshare song
+    end
+  end
+
   describe '#playlist' do
     describe '#playlist(foo).add'
   end

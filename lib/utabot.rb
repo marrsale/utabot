@@ -49,9 +49,17 @@ class TracksCollection < Struct.new :soundcloud, :tracks
   end
 end
 
-class Utabot < Struct.new :soundcloud
+class Utabot < Struct.new :soundcloud, :twitter
   def hottest_for_genre genre, limit=100
-    TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.max_by(&method(:score))
+    TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.max_by &method(:score)
+  end
+
+  def tweet track
+    twitter.update "#{track.title} #{track.permalink_url}"
+  end
+
+  def reshare track
+    soundcloud.put "https://api.soundcloud.com/e1/me/track_reposts/#{track.id}"
   end
 
   def score track
