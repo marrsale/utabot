@@ -29,7 +29,7 @@ def reshare track
 end
 
 uta = Utabot.new client
-tracks = TracksCollection.new(client).for_genre 'disco'
+best_disco_song = uta.hottest_for_genre 'disco', 20000
 
 binding.pry
 

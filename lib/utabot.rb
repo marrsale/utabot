@@ -5,8 +5,7 @@ class TracksCollection < Struct.new :soundcloud, :tracks
 
   def for_genre genre, limit=nil, for_dates: nil
     self.tracks = get_tracks genre: genre, limit: limit, created_at: for_dates
-
-    self
+    return self
   end
 
   private
@@ -19,12 +18,14 @@ class TracksCollection < Struct.new :soundcloud, :tracks
 
       while retrieved.size < (args[:limit] or 1)
         if last_response and last_response.next_href != ''
-          retrieved.push *soundcloud.get(last_response.next_href)
+          last_response = soundcloud.get last_response.next_href
+          retrieved.push *last_response.collection
         else
-          retrieved.push *soundcloud.get('/tracks', track_arguments(args))
+          last_response = soundcloud.get '/tracks', track_arguments(args)
+          retrieved.push *last_response.collection
         end
       end
-    end.flatten
+    end
   end
 
   def track_arguments **args
@@ -50,14 +51,20 @@ class TracksCollection < Struct.new :soundcloud, :tracks
 end
 
 class Utabot < Struct.new :soundcloud
-  def hottest_for_genre genre
-    TracksCollection.new(soundcloud).for_genre(genre).max_by &method(:score)
+  def hottest_for_genre genre, limit=100
+    TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.max_by(&method(:score))
   end
 
   def score track
-    score = 0.to_f
-    score += (track.playback_count.to_f or 0.to_f)
-    index = ((track.likes_count.to_f or 0.to_f)/(track.playback_count.to_f or 1.to_f))
-    score *= index
+    begin
+      score = 0.to_f
+      score += (track.playback_count.to_f or 0.to_f)
+      index = ((track.likes_count.to_f or 0.to_f)/(track.playback_count.to_f or 1.to_f))
+      score *= index
+    rescue
+      0.0
+    end
+
+    score.nan? ? 0 : score
   end
 end
