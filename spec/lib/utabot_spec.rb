@@ -34,25 +34,76 @@ end
 
 RSpec.describe TracksCollection do
   let(:soundcloud_client) { double 'SoundcloudClient' }
+  let(:max_request_size) { described_class::MAX_REQUEST_PAGE_SIZE }
 
   subject { described_class.new soundcloud_client }
 
   it { is_expected.to respond_to :soundcloud }
 
   describe '#get_tracks' do
-    describe 'pagination: continuously retrieves records while appropriate' do
-      it 'until limit is reached'
-      it 'until there are no more records'
+    let(:fifty_records) { Array.new 50, double('Track') }
+
+    before do
+      allow(soundcloud_client).to receive(:get).and_return fifty_records
+    end
+
+    it 'returns a list of tracks' do
+      expect(subject.send :get_tracks).to eq fifty_records
+    end
+
+    describe 'pagination' do
+      it 'does not paginate for small requests' do
+        expect(soundcloud_client).to receive(:get).exactly(1).times
+
+        subject.send :get_tracks, limit: 50
+      end
+
+      it 'uses linked partitioning when necessary' do
+        next_href = 'next_href'
+        allow(subject).to receive(:last_response).and_return(double 'SoundcloudResponse', next_href: next_href)
+
+        expect(soundcloud_client).to receive(:get).with(next_href)
+
+        subject.send :get_tracks, limit: (max_request_size + 1)
+      end
+
+      describe 'loop terminates' do
+        it 'when specified limit is reached' do
+          expect(soundcloud_client).to receive(:get).exactly(2).times.and_return fifty_records
+
+          subject.send :get_tracks, limit: 100
+        end
+
+        it 'before specified limit is reached but no more records exist' do
+          allow(subject).to receive(:last_response).and_return double('SoundcloudResponse', next_href: '')
+
+          subject.send :get_tracks, limit: (max_request_size + 1)
+        end
+      end
     end
   end
 
   describe '#track_arguments' do
+    describe 'for pagination' do
+      it 'adds a linked partitioning argument when we request more than one page' do
+        track_arg_hash = subject.send :track_arguments, limit: (max_request_size + 1)
+
+        expect(track_arg_hash).to have_key :linked_partitioning
+        expect(track_arg_hash[:linked_partitioning]).to be 1
+      end
+
+      it 'does not add pagination argument for small requests' do
+        track_arg_hash = subject.send :track_arguments, limit: 1
+
+        expect(track_arg_hash).not_to have_key :linked_partitioning
+      end
+    end
+
     describe 'with a genre' do
       it 'adds a key for genre when one is provided' do
         track_arg_hash = subject.send :track_arguments, genre: 'genre'
 
-        # we filter on 'q' instead, as the genre parameter does not work
-        expect(subject.send :track_arguments, genre: 'genre').to have_key :genres
+        expect(track_arg_hash).to have_key :genres
         expect(track_arg_hash[:genres]).to eq 'genre'
       end
 
@@ -62,8 +113,6 @@ RSpec.describe TracksCollection do
     end
 
     describe 'with a limit' do
-      let(:max_request_size) { described_class::MAX_REQUEST_PAGE_SIZE }
-
       it 'adds a key for a limit when one is provided' do
         track_arg_hash = subject.send :track_arguments, limit: 100
 

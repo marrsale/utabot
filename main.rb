@@ -29,11 +29,15 @@ def reshare track
 end
 
 uta = Utabot.new client
-res = uta.for_genre 'disco', 200, for_dates: (Date.today - 7)..Date.today
-best = res.reject{|t| t.playback_count == 0 or t.duration > 600000 }.sort_by(&uta.method(:score)).last
+tracks = TracksCollection.new(client).for_genre 'disco'
 
+binding.pry
 
-puts best.permalink_url
+# res = uta.for_genre 'disco', 200, for_dates: (Date.today - 7)..Date.today
+# best = res.reject{|t| t.playback_count == 0 or t.duration > 600000 }.sort_by(&uta.method(:score)).last
+#
+#
+# puts best.permalink_url
 # best_disco_song = uta.hottest_for_genre 'disco'
 # uta.tweet best_disco_song
 # uta.reshare best_disco_song

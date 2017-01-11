@@ -11,9 +11,20 @@ class TracksCollection < Struct.new :soundcloud, :tracks
 
   private
 
+  attr_accessor :last_response
+
   def get_tracks **args
-    # TODO: pagination
-    soundcloud.get '/tracks', track_arguments(args)
+    [].tap do |retrieved|
+      self.last_response = nil
+
+      while retrieved.size < (args[:limit] or 1)
+        if last_response and last_response.next_href != ''
+          retrieved.push *soundcloud.get(last_response.next_href)
+        else
+          retrieved.push *soundcloud.get('/tracks', track_arguments(args))
+        end
+      end
+    end.flatten
   end
 
   def track_arguments **args
@@ -21,6 +32,10 @@ class TracksCollection < Struct.new :soundcloud, :tracks
       options[:genres] = args[:genre] if not args[:genre].nil?
       options[:created_at] = 'last_week' if not args[:limit].nil?
       options[:limit] = [args[:limit], MAX_REQUEST_PAGE_SIZE].min if not args[:limit].nil?
+
+      if (args[:limit] or 1) > MAX_REQUEST_PAGE_SIZE # we must paginate
+        options[:linked_partitioning] = 1
+      end
     end
   end
 
@@ -36,7 +51,7 @@ end
 
 class Utabot < Struct.new :soundcloud
   def hottest_for_genre genre
-    TracksCollection.new(soundcloud).for_genre.max_by &method(:score)
+    TracksCollection.new(soundcloud).for_genre(genre).max_by &method(:score)
   end
 
   def score track
