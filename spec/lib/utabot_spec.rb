@@ -7,6 +7,25 @@ RSpec.describe Utabot do
 
   subject { described_class.new soundcloud_client }
 
+  describe '#hottest_for_genre' do
+    it { is_expected.to respond_to :hottest_for_genre }
+
+    it 'returns a track for a given genre'
+    it 'returns a track scored most highly by some criteria'
+  end
+
+  describe '#tweet'
+  describe '#reshare'
+  describe '#playlist' do
+    describe '#playlist(foo).add' #eventual playlist class?
+  end
+end
+
+RSpec.describe TracksCollection do
+  let(:soundcloud_client) { double 'SoundcloudClient' }
+
+  subject { described_class.new soundcloud_client }
+
   it { is_expected.to respond_to :soundcloud }
 
   describe '#get_tracks' do
@@ -32,7 +51,7 @@ RSpec.describe Utabot do
     end
 
     describe 'with a limit' do
-      let(:max_request_size) { Utabot::MAX_REQUEST_PAGE_SIZE }
+      let(:max_request_size) { described_class::MAX_REQUEST_PAGE_SIZE }
 
       it 'adds a key for a limit when one is provided' do
         track_arg_hash = subject.send :track_arguments, limit: 100
@@ -62,7 +81,7 @@ RSpec.describe Utabot do
         expect(track_arg_hash_with_dates).to have_key :created_at
       end
 
-      it 'does not add a key for a date range when not provided' do
+      it 'does not add a key for a date range when not provided', skip: 'See relevant TODO' do
         expect(subject.send :track_arguments).not_to have_key :created_at
       end
     end
@@ -102,21 +121,4 @@ RSpec.describe Utabot do
       expect(subject.tracks_for_genre 'disco').to be mock_track_collection
     end
   end
-
-  # BDD
-  describe '#hottest_for_genre' do
-    it 'returns a track for a given genre'
-    it 'returns a track scored most highly by some criteria'
-  end
-
-  describe 'picks the "best" song' do
-    it 'from a given list of tracks'
-    it 'based on custom criteria'
-  end
-
-  it 'adds a song to a playlist'
-  it 'creates a playlist if there is not already a relevant one'
-
-  it 'tweets a song'
-  it 'reshares a song'
 end

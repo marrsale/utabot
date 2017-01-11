@@ -19,6 +19,7 @@ def twitter
     c.access_token_secret = ENV['utabot_twitter_access_token_secret']
   end
 end
+
 # Helper for resharing to SC stream if the song hasn't been reshared already
 # NOTE this isn't an officially supported action, and so is a little hacky
 # http://stackoverflow.com/questions/19266083/reposting-a-track-via-the-soundcloud-api
