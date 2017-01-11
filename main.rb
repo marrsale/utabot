@@ -29,9 +29,8 @@ end
 
 uta = Utabot.new client
 res = uta.tracks_for_genre 'disco', 200, for_dates: (Date.today - 7)..Date.today
-best = res.sort_by(&uta.method(:score)).last
+best = res.reject{|t| t.playback_count == 0 or t.duration > 600000 }.sort_by(&uta.method(:score)).last
 
-binding.pry
 
 puts best.permalink_url
 # best_disco_song = uta.hottest_for_genre 'disco'

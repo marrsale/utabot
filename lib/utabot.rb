@@ -14,7 +14,7 @@ class Utabot < Struct.new :soundcloud
   def score track
     score = 0.to_f
     score += (track.playback_count.to_f or 0.to_f)
-    index = ((track.likes_count.to_f or 0.to_f)/(track.playback_count.to_f or 0.to_f))
+    index = ((track.likes_count.to_f or 0.to_f)/(track.playback_count.to_f or 1.to_f))
     score *= index
   end
 
@@ -29,7 +29,8 @@ class Utabot < Struct.new :soundcloud
     {}.tap do |options|
       options[:genres] = args[:genre] if not args[:genre].nil?
       options[:limit] = [args[:limit], MAX_REQUEST_PAGE_SIZE].min if not args[:limit].nil?
-      options[:created_at] = created_at_range(args[:created_at]) if not args[:created_at].nil?
+      # options[:created_at] = created_at_range(args[:created_at]) if not args[:created_at].nil?
+      options[:created_at] = 'last_week'
     end
   end
 
