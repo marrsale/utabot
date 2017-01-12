@@ -26,6 +26,28 @@ RSpec.describe Utabot do
     end
   end
 
+  describe '#hottest_x_for_genre' do
+    it { is_expected.to respond_to :hottest_x_for_genre }
+
+    describe 'returns tracks' do
+      let(:mock_tracks_collection) { (1..10).to_a }
+
+      before do
+        allow(subject).to receive(:score) {|x| x}
+        allow_any_instance_of(TracksCollection).to receive(:for_genre) {|c| c}
+        allow_any_instance_of(TracksCollection).to receive(:tracks).and_return mock_tracks_collection
+      end
+
+      it 'in specified count' do
+        expect(subject.hottest_x_for_genre(3, 'disco').count).to be 3
+      end
+
+      it 'scored most highly by some criteria in order of score' do
+        expect(subject.hottest_x_for_genre 3, 'disco').to eq [10, 9, 8]
+      end
+    end
+  end
+
   let(:song_title) { 'An Artist - A Song' }
   let(:song_url) { 'a_url_here' }
   let(:song_id) { 1 }

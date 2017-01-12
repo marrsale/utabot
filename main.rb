@@ -1,6 +1,6 @@
-require 'rspec'
-require 'pry'
 require 'soundcloud'
+require 'twitter'
+require 'pry'
 
 require './lib/utabot'
 
@@ -23,14 +23,16 @@ end
 Genres = ['ambient', 'disco', 'deep house']
 
 uta = Utabot.new client
-updated = []
 
-Genres.each do |genre|
-  best_song = uta.hottest_for_genre genre, 20000
-  puts "#{genre}: " + best_song.permalink_url
-  updated << (uta.playlist(genre).add best_song)
-end
+best_7 = uta.hottest_x_for_genre 7, 'ambient', 20000
+best_7.map(&:permalink_url).each &method(:puts)
 
+# updated = []
+# Genres.each do |genre|
+#   best_song = uta.hottest_for_genre genre, 20000
+#   puts "#{genre}: " + best_song.permalink_url
+#   updated << (uta.playlist(genre).add best_song)
+# end
 
-# uta.tweet best_disco_song
-# uta.reshare best_disco_song
+# uta.tweet best_song
+# uta.reshare best_song

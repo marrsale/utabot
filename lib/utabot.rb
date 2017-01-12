@@ -10,6 +10,10 @@ class Utabot < Struct.new :soundcloud, :twitter
     TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.max_by &method(:score)
   end
 
+  def hottest_x_for_genre x, genre, limit=100
+    TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.sort_by(&method(:score)).last(x).reverse
+  end
+
   def playlist name
     Playlist.find name, soundcloud
   end
