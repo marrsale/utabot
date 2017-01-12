@@ -27,15 +27,6 @@ class Utabot < Struct.new :soundcloud, :twitter
   end
 
   def score track
-    begin
-      score = 0.to_f
-      score += (track.playback_count.to_f or 0.to_f)
-      index = ((track.likes_count.to_f or 0.to_f)/(track.playback_count.to_f or 1.to_f))
-      score *= index
-    rescue
-      0.0
-    end
-
-    score.nan? ? 0 : score
+    (track.likes_count or 0) + (2*(track.reposts_count or 0))
   end
 end
