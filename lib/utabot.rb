@@ -1,47 +1,9 @@
 require 'date'
 
+require_relative 'core_ext'
+
 require_relative 'tracks_collection'
-
-class BasicObject
-  def self.delegate *methods, to:
-    methods.each do |meth|
-      define_method(meth.to_sym) do |*args, &block|
-        send(to).send meth, *args, &block
-      end
-    end
-  end
-end
-
-class Playlist < Struct.new :data, :soundcloud
-  delegate :title, :id, :secret_token, :tracks, to: :data
-
-  alias_method :name, :title
-
-  def add track
-    soundcloud.put data.uri, add_track_args(track)
-  end
-
-  private
-
-  def add_track_args track
-    tracks_array = tracks.map do |t|
-      { id: t.id }
-    end
-
-    {
-      playlist: {
-        tracks: tracks_array + [{ id: track.id }]
-      }
-    }
-  end
-
-  class << self
-    def find name, soundcloud
-      playlist = soundcloud.get('/me/playlists').find {|pl| pl.title == name }
-      playlist.nil? ? nil : self.new(playlist, soundcloud)
-    end
-  end
-end
+require_relative 'playlist'
 
 class Utabot < Struct.new :soundcloud, :twitter
   def hottest_for_genre genre, limit=100
