@@ -26,8 +26,8 @@ RSpec.describe Utabot do
     end
   end
 
-  describe '#hottest_x_for_genre' do
-    it { is_expected.to respond_to :hottest_x_for_genre }
+  describe '#hottest_n_for_genre' do
+    it { is_expected.to respond_to :hottest_n_for_genre }
 
     describe 'returns tracks' do
       let(:mock_tracks_collection) { (1..10).to_a }
@@ -39,11 +39,11 @@ RSpec.describe Utabot do
       end
 
       it 'in specified count' do
-        expect(subject.hottest_x_for_genre(3, 'disco').count).to be 3
+        expect(subject.hottest_n_for_genre(3, 'disco').count).to be 3
       end
 
       it 'scored most highly by some criteria in order of score' do
-        expect(subject.hottest_x_for_genre 3, 'disco').to eq [10, 9, 8]
+        expect(subject.hottest_n_for_genre 3, 'disco').to eq [10, 9, 8]
       end
     end
   end

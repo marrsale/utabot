@@ -20,19 +20,18 @@ def twitter
   end
 end
 
-Genres = ['ambient', 'disco', 'deep house']
+Genres = %w(ambient disco deep\ house)
 
 uta = Utabot.new client
 
-best_7 = uta.hottest_x_for_genre 7, 'ambient', 20000
-best_7.map(&:permalink_url).each &method(:puts)
+Genres.each do |genre|
+  best_seven = uta.hottest_n_for_genre 7, genre, 20000
 
-# updated = []
-# Genres.each do |genre|
-#   best_song = uta.hottest_for_genre genre, 20000
-#   puts "#{genre}: " + best_song.permalink_url
-#   updated << (uta.playlist(genre).add best_song)
-# end
+  puts "#{genre}: "
+  best_seven.map(&:permalink_url).each &method(:puts)
+
+  uta.playlist(genre).add_first_unique best_seven
+end
 
 # uta.tweet best_song
 # uta.reshare best_song

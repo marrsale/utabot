@@ -7,8 +7,8 @@ RSpec.describe Playlist do
   let(:name) { 'disco' }
   let(:id) { 1 }
   let(:token) { 'a_secret_token' }
-  let(:tracks) { [] }
   let(:track) { double 'Track', id: 1 }
+  let(:tracks) { [track] }
   let(:soundcloud_playlist_data) do
     double 'SoundcloudPlaylist',
       id: id,
@@ -33,6 +33,8 @@ RSpec.describe Playlist do
 
   describe '#add_track_args' do
     it 'creates a Rails-style nested RESTful resource structure' do
+      allow(subject).to receive(:tracks).and_return []
+
       expected_result = {
         playlist: {
           tracks: [{id: track.id}]
@@ -52,9 +54,27 @@ RSpec.describe Playlist do
       subject.add track
     end
 
-    describe 'returns' do
+    describe 'returns', pending: 'API document discovery' do
       it 'new version of itself on success'
-      it 'false when unsuccessful'
+      it 'current version of itself when unsuccessful', pending: 'what to return?'
+    end
+  end
+
+  describe '#add_first_unique' do
+    it { is_expected.to respond_to :add_first_unique }
+    let(:new_track) { double 'Track', id: 2 }
+
+    it 'with at least one track not already present adds the first track not already present' do
+      expect(subject).to receive(:add).with new_track
+
+      subject.add_first_unique [track, new_track]
+    end
+
+    it 'with no tracks not already present does not add anything' do
+      allow(subject).to receive(:tracks).and_return [track, new_track]
+      expect(subject).not_to receive(:add).with new_track
+
+      subject.add_first_unique [track, new_track]
     end
   end
 

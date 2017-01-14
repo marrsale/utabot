@@ -7,10 +7,10 @@ require_relative 'playlist'
 
 class Utabot < Struct.new :soundcloud, :twitter
   def hottest_for_genre genre, limit=100
-    TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.max_by &method(:score)
+    hottest_n_for_genre(1, genre, limit).first
   end
 
-  def hottest_x_for_genre x, genre, limit=100
+  def hottest_n_for_genre x, genre, limit=100
     TracksCollection.new(soundcloud).for_genre(genre, limit).tracks.sort_by(&method(:score)).last(x).reverse
   end
 
