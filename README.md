@@ -28,3 +28,4 @@ http://stackoverflow.com/questions/14914059/soundcloud-api-extracting-tracks-rep
 - API integration and contract testing (maybe including VCR)
 - Decouple logic pertinent to searching and sorting, e.g. a strategy class
 - Alternative strategies for song selection, e.g. collaborative filtering
+- Investigate whether we can PUT a singular track to update the playlist

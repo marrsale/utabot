@@ -8,8 +8,8 @@ class Playlist < Struct.new :data, :soundcloud
   end
 
   def add_first_unique prospective_tracks
-    new_tracks = prospective_tracks.select do |t|
-      not self.tracks.map(&:id).include? t.id
+    new_tracks = prospective_tracks.reject do |t|
+      track_ids.include? t.id
     end
 
     add new_tracks.first if new_tracks.any?
@@ -17,7 +17,10 @@ class Playlist < Struct.new :data, :soundcloud
 
   private
 
-  # TODO: do we need to upload all previous tracks also?
+  def track_ids
+    @track_ids ||= self.tracks.map &:id
+  end
+
   def add_track_args track
     tracks_array = tracks.map do |t|
       { id: t.id }
