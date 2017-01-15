@@ -24,8 +24,11 @@ Genres = %w(ambient disco deep\ house)
 
 uta = Utabot.new client
 
+results = []
+
 Genres.each do |genre|
   best_seven = uta.hottest_n_for_genre 7, genre, 20000
+  results.push *best_seven
 
   puts "#{genre}: "
   best_seven.map(&:permalink_url).each &method(:puts)
@@ -33,5 +36,6 @@ Genres.each do |genre|
   uta.playlist(genre).add_first_unique best_seven
 end
 
+# best_song = results.max_by &uta.method(:score)
 # uta.tweet best_song
 # uta.reshare best_song

@@ -1,3 +1,9 @@
+# Utabot
+
+## [SoundCloud](soundcloud.com/utabot)
+
+### A ruby script with accompanying classes for curating custom playlists by genre with quality music.
+
 New goal: search through tracks submitted in the last day, per genre, and find the 'hottest' ones (based on an arbitrary definition of hotness).  Put these in appropriate playlists and reshare the best one to the feed.
 
 To curate your own playlist(s) with utabot, get your client secret and id from SoundCloud and set up your environment variables, including your username and password:
