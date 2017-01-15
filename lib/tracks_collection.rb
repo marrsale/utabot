@@ -16,7 +16,7 @@ class TracksCollection < Struct.new :soundcloud, :tracks
 
       begin
         while retrieved.size < (args[:limit] or 1)
-          if last_response and last_response.next_href != ''
+          if last_response and not last_response.next_href.nil?
             self.last_response = soundcloud.get last_response.next_href
           else
             self.last_response = soundcloud.get '/tracks', track_arguments(args)

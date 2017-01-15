@@ -32,7 +32,7 @@ RSpec.describe TracksCollection do
     end
 
     describe 'pagination' do
-      let(:last_page_response) { soundcloud_response fifty_tracks, '' }
+      let(:last_page_response) { soundcloud_response fifty_tracks, nil }
 
       it 'does not paginate for small requests' do
         expect(soundcloud_client).to receive(:get).exactly(1).times
