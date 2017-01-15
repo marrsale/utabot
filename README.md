@@ -1,6 +1,6 @@
 # Utabot
 
-## [SoundCloud](soundcloud.com/utabot)
+## [SoundCloud](http://www.soundcloud.com/utabot)
 
 ### A ruby script with accompanying classes for curating custom playlists by genre with quality music.
 
