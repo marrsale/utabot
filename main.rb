@@ -33,9 +33,10 @@ Genres.each do |genre|
   puts "#{genre}: "
   best_seven.map(&:permalink_url).each &method(:puts)
 
-  uta.playlist(genre).add_first_unique best_seven
+  # uta.playlist(genre).add_first_unique best_seven
 end
 
-# best_song = results.max_by &uta.method(:score)
+uta.reshare_best_unique results
+
+# best_song = results.sort_by(&uta.method(:score)).last
 # uta.tweet best_song
-# uta.reshare best_song
