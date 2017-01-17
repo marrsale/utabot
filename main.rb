@@ -33,7 +33,7 @@ Genres.each do |genre|
   puts "#{genre}: "
   best_seven.map(&:permalink_url).each &method(:puts)
 
-  # uta.playlist(genre).add_first_unique best_seven
+  uta.playlist(genre).add_first_unique best_seven
 end
 
 uta.reshare_best_unique results

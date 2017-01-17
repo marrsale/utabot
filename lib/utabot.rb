@@ -30,7 +30,7 @@ class Utabot < Struct.new :soundcloud, :twitter
     last_response = nil
     sorted_tracks = tracks.flatten.sort_by &method(:score)
 
-    while last_response.nil? or not last_response.status =~ /201/
+    while not last_response&.status =~ /201/
       next_best_track = sorted_tracks.pop
 
       last_response = reshare next_best_track
