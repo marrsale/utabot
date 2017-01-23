@@ -92,8 +92,8 @@ RSpec.describe Utabot do
     let(:first_unreshared_track) { double 'Track', id: 2, score: 2 }
     let(:tracks) { [previously_reshared_track, first_unreshared_track, (double 'Track', id: 3, score: 1)] }
 
-    let(:ok_response) { double 'Response', status: "200 - OK" }
-    let(:created_response) { double 'Response', status: "201 - Created" }
+    let(:ok_response) { double 'Response', code: 200 }
+    let(:created_response) { double 'Response', code: 201 }
 
     before do
       allow(subject).to receive(:score) do |track|

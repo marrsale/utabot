@@ -27,17 +27,21 @@ class Utabot < Struct.new :soundcloud, :twitter
   end
 
   def reshare_best_unique *tracks
-    last_response = nil
+    self.last_response = nil
     sorted_tracks = tracks.flatten.sort_by &method(:score)
 
-    while not last_response&.status =~ /201/
+    while sorted_tracks.any? and not last_response&.code == 201
       next_best_track = sorted_tracks.pop
 
-      last_response = reshare next_best_track
+      self.last_response = reshare next_best_track
     end
   end
 
   def score track
     (track.likes_count or 0) + (2*(track.reposts_count or 0))
   end
+
+  private
+
+  attr_accessor :last_response
 end
